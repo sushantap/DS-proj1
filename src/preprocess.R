@@ -36,7 +36,7 @@ cvdata <- trainData[-cvIndex, ]
 
 models <- c('rpart', 'knn', 'nnet')
 a <- sapply(models, metric, rawdata, cvdata)
-
+barplot(a[1,], ylab='accuracy', xlab='model type')
 
 #check the importance of varibles
 varImp(model)
