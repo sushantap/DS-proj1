@@ -1,10 +1,14 @@
 source('src/removeZeroVariaceFeatures.R');
 source('src/getPcaObj.R')
+source('src/sample.R')
 library(caret);
 rawdataT <- read.csv('data/dd.csv')
-rawdata <- as.data.frame(lapply(rawdataT[,-ncol(rawdataT)], as.numeric))
-rawdata$class <- rawdataT[,ncol(rawdata)]
+samples <- mysample(rawdataT)
+sampledData <- rawdataT[samples, ]
 
+#rawdata <- as.data.frame(lapply(sampledData[,-ncol(rawdataT)], as.numeric))
+#rawdata$class <- sampledData[,ncol(rawdata)]
+rawdata <- sampledData
 
 # check for near zero variance varibles
 nsv <- nearZeroVar(rawdata,saveMetrics=TRUE)
@@ -20,7 +24,7 @@ testData <- rawdata[-inTrain, ]
 
 #will use for training and refining algorithm
 trainData <- rawdata[inTrain, ]
-cvIndex <- createDataPartition(trainData$class, p=0.1, list=FALSE)
+cvIndex <- createDataPartition(trainData$class, p=0.01, list=FALSE)
 
 #actual training data
 traindata <- trainData[cvIndex, ]
@@ -29,10 +33,10 @@ traindata <- trainData[cvIndex, ]
 #cross validataion data will use to test our model and modify
 cvdata <- trainData[-cvIndex, ]
 
-model <- train(class ~ ., method='knn', data=traindata)
+model <- train(class ~ ., method='rpart', data=traindata)
 
 preds <- predict(model, cvdata)
-cm <- confusionMatrix(preds, cvdata$class)
+confusionMatrix(preds, cvdata$class)$overall
 
 
 #check the importance of varibles
