@@ -1,6 +1,7 @@
 source('src/removeZeroVariaceFeatures.R');
 source('src/getPcaObj.R')
 source('src/sample.R')
+source('src/metric.R')
 library(caret);
 rawdataT <- read.csv('data/dd.csv')
 samples <- mysample(rawdataT)
@@ -33,10 +34,8 @@ traindata <- trainData[cvIndex, ]
 #cross validataion data will use to test our model and modify
 cvdata <- trainData[-cvIndex, ]
 
-model <- train(class ~ ., method='rpart', data=traindata)
-
-preds <- predict(model, cvdata)
-confusionMatrix(preds, cvdata$class)$overall
+models <- c('rpart', 'knn', 'nnet')
+a <- sapply(models, metric, rawdata, cvdata)
 
 
 #check the importance of varibles
